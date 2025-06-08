@@ -1,13 +1,17 @@
-import React from "react";
+// src/components/auth/LoginForm.tsx
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
   TextField,
   Button,
   InputAdornment,
-  Typography,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
-import { Badge, Lock, Email } from "@mui/icons-material";
+import { Badge, Lock, Email, Person } from "@mui/icons-material";
+import { useLogin } from "@hooks/api/useAuth/useLogin";
+import { LoginPayload } from "@services/authService/authServiceApi";
 
 interface LoginFormProps {
   userType: "user" | "doctor";
@@ -17,22 +21,87 @@ const LoginForm: React.FC<LoginFormProps> = ({ userType }) => {
   const isDoctor = userType === "doctor";
   const mainColor = isDoctor ? "#1d6d62" : "#212121";
   const navigate = useNavigate();
+  const { login, loading, error, data } = useLogin();
 
-  const handleLogin = () => {
-    // TODO: your real login logic here…
-    localStorage.setItem("token", "fake-jwt-token");
-    navigate("/dashboard", { replace: true });
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange =
+    (key: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm((prev) => ({ ...prev, [key]: e.target.value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // payload must satisfy LoginPayload
+    const payload: LoginPayload = { password: form.password };
+
+    if (isDoctor) {
+      payload.username = form.username;
+    } else {
+      // user: include both username & email
+      payload.username = form.username;
+      payload.email = form.email;
+    }
+
+    try {
+      const res = await login(payload);
+      localStorage.setItem("token", res.key);
+      navigate("/dashboard", { replace: true });
+    } catch {
+      /* error is surfaced via the hook */
+    }
   };
 
   return (
-    <form>
-      <Box sx={{ my: 1 }} display="flex" flexDirection="column" gap={2}>
+    <form onSubmit={handleSubmit}>
+      <Box display="flex" flexDirection="column" gap={2} sx={{ my: 1 }}>
+        {/* For users: show the User Name field */}
+        {!isDoctor && (
+          <TextField
+            fullWidth
+            label="User Name"
+            name="username"
+            variant="outlined"
+            value={form.username}
+            onChange={handleChange("username")}
+            disabled={loading}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Person sx={{ color: mainColor }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": { borderColor: "#e0e0e0" },
+                "&:hover fieldset": { borderColor: "#bdbdbd" },
+                "&.Mui-focused fieldset": { borderColor: mainColor },
+              },
+              "& .MuiInputLabel-root": {
+                color: "#616161",
+                fontWeight: 500,
+                "&.Mui-focused": { color: mainColor },
+              },
+            }}
+          />
+        )}
+
+        {/* Email for users, Syndicate Number for doctors */}
         <TextField
           fullWidth
           label={isDoctor ? "Syndicate Number" : "Email Address"}
-          name={isDoctor ? "syndicate-number" : "email"}
+          name={isDoctor ? "username" : "email"}
           type={isDoctor ? "text" : "email"}
           variant="outlined"
+          value={isDoctor ? form.username : form.email}
+          onChange={handleChange(isDoctor ? "username" : "email")}
+          disabled={loading}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -58,12 +127,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ userType }) => {
           }}
         />
 
+        {/* Password */}
         <TextField
           fullWidth
           label="Password"
           name="password"
           type="password"
           variant="outlined"
+          value={form.password}
+          onChange={handleChange("password")}
+          disabled={loading}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -85,31 +158,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ userType }) => {
           }}
         />
 
-        <Box textAlign="right">
-          <Button
-            variant="text"
-            size="small"
-            sx={{
-              color: mainColor,
-              "&:hover": {
-                backgroundColor: `rgba(${isDoctor ? "29, 109, 98" : "33, 33, 33"}, 0.08)`,
-                color: isDoctor ? "#145246" : "#424242",
-              },
-            }}
-          >
-            Forgot Password?
-          </Button>
-        </Box>
+        {/* Feedback */}
+        {error && <Alert severity="error">{error}</Alert>}
+        {data && <Alert severity="success">Logged in successfully!</Alert>}
 
+        {/* Submit */}
         <Button
           type="submit"
-          onClick={(e) => {
-            e.preventDefault();
-            handleLogin();
-          }}
           fullWidth
           variant="contained"
           size="large"
+          disabled={loading}
+          startIcon={
+            loading ? <CircularProgress size={20} color="inherit" /> : undefined
+          }
           sx={{
             mt: 2,
             py: 1.2,
@@ -129,48 +191,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ userType }) => {
         >
           Sign In
         </Button>
-
-        {!isDoctor && (
-          <>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, my: 3 }}>
-              <Box
-                sx={{ flexGrow: 1, borderBottom: 1, borderColor: "#eeeeee" }}
-              />
-              <Typography variant="body2" sx={{ color: "#757575" }}>
-                OR
-              </Typography>
-              <Box
-                sx={{ flexGrow: 1, borderBottom: 1, borderColor: "#eeeeee" }}
-              />
-            </Box>
-
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={
-                <Box
-                  component="img"
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
-                  alt="Google"
-                  sx={{ width: 20, height: 25, filter: "brightness(0.8)" }}
-                />
-              }
-              sx={{
-                borderColor: "#e0e0e0",
-                color: "#424242",
-                textTransform: "none",
-                fontWeight: 500,
-                py: 0.9,
-                "&:hover": {
-                  borderColor: "#bdbdbd",
-                  backgroundColor: "#f5f5f5",
-                },
-              }}
-            >
-              Continue with Google
-            </Button>
-          </>
-        )}
       </Box>
     </form>
   );

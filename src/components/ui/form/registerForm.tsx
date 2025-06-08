@@ -1,14 +1,21 @@
-// RegisterForm.tsx
-import React from "react";
-import { Box, TextField, Button, InputAdornment } from "@mui/material";
+import React, { useState } from "react";
 import {
-  Fingerprint, // For national number
-  Groups,      // For union number
-  Portrait,    // For full name
-  AlternateEmail, // For email
-  Lock,        // For password
-  HowToReg,    // For confirm password
+  Box,
+  TextField,
+  Button,
+  InputAdornment,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
+import {
+  Fingerprint,
+  Groups,
+  Portrait,
+  AlternateEmail,
+  Lock,
+  HowToReg,
 } from "@mui/icons-material";
+import { useRegister } from "@hooks/api/useAuth/useRegisteration";
 
 interface RegisterFormProps {
   userType: "user" | "doctor";
@@ -17,34 +24,56 @@ interface RegisterFormProps {
 const RegisterForm: React.FC<RegisterFormProps> = ({ userType }) => {
   const isDoctor = userType === "doctor";
   const mainColor = isDoctor ? "#1d6d62" : "#212121";
-  
+
+  const { register, loading, error, data } = useRegister();
+
+  // we prep all possible fields; doctorFields won’t submit until you map them into payload
   const doctorFields = [
-    { label: "National Number", icon: <Fingerprint /> },
-    { label: "Union Number", icon: <Groups /> },
-    { label: "Password", icon: <Lock /> },
-    { label: "Confirm Password", icon: <HowToReg /> }
+    { key: "nationalNumber", label: "National Number", icon: <Fingerprint /> },
+    { key: "unionNumber", label: "Union Number", icon: <Groups /> },
+    { key: "password1", label: "Password", icon: <Lock />, type: "password" },
+    { key: "password2", label: "Confirm Password", icon: <HowToReg />, type: "password" },
   ];
-
   const userFields = [
-    { label: "Full Name", icon: <Portrait /> },
-    { label: "Email Address", icon: <AlternateEmail /> },
-    { label: "Password", icon: <Lock /> },
-    { label: "Confirm Password", icon: <HowToReg /> }
+    { key: "username", label: "Full Name", icon: <Portrait /> },
+    { key: "email", label: "Email Address", icon: <AlternateEmail /> },
+    { key: "password1", label: "Password", icon: <Lock />, type: "password" },
+    { key: "password2", label: "Confirm Password", icon: <HowToReg />, type: "password" },
   ];
-
   const fields = isDoctor ? doctorFields : userFields;
 
+  // initialize form state with all possible keys
+  const [form, setForm] = useState<Record<string,string>>(
+    fields.reduce((acc, f) => ({ ...acc, [f.key]: "" }), {})
+  );
+
+  const handleChange = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, [key]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = {
+      username: form.username,
+      email: form.email,
+      password1: form.password1,
+      password2: form.password2,
+    };
+    await register(payload);
+  };
+
   return (
-    <form>
-      <Box sx={{ my: 1 }} display="flex" flexDirection="column" gap={3}>
-        {fields.map(({ label, icon }) => (
+    <form onSubmit={handleSubmit}>
+      <Box display="flex" flexDirection="column" gap={3} sx={{ mt: 2 }}>
+        {fields.map(({ key, label, icon, type = "text" }) => (
           <TextField
-            key={label}
+            key={key}
             fullWidth
-            variant="outlined"
             label={label}
-            name={label.toLowerCase().replace(" ", "-")}
-            type={label.includes("Password") ? "password" : "text"}
+            type={type}
+            value={form[key]}
+            onChange={handleChange(key)}
+            disabled={loading}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -67,13 +96,17 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ userType }) => {
           />
         ))}
 
+        {error && <Alert severity="error">{error}</Alert>}
+        {data && <Alert severity="success">Registration successful!</Alert>}
+
         <Button
           type="submit"
           fullWidth
           variant="contained"
           size="large"
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : undefined}
           sx={{
-            mt: 2,
             py: 1.5,
             fontSize: "1rem",
             textTransform: "none",
