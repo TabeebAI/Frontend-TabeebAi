@@ -1,6 +1,23 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://127.0.0.1:8000/TabebAI";
+const API_BASE_URL = "https://2478-137-184-161-129.ngrok-free.app/TabebAI";
+axios.defaults.xsrfCookieName = "csrftoken";
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
 
 export interface RegisterPayload {
   username: string;
@@ -15,11 +32,12 @@ export interface RegisterResponse {
 export const registerUser = async (
   data: RegisterPayload
 ): Promise<RegisterResponse> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/Registration/`,
-    data,
-    { headers: { "Content-Type": "application/json" } }
-  );
+  const response = await axios.post(`${API_BASE_URL}/Registration/`, data, {
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+  });
   return response.data;
 };
 
@@ -32,13 +50,24 @@ export interface LoginResponse {
   key: string;
 }
 
-export const loginUser = async (
-  data: LoginPayload
-): Promise<LoginResponse> => {
-  const response = await axios.post(
-    `${API_BASE_URL}/login/`,
-    data,
-    { headers: { "Content-Type": "application/json" } }
-  );
+export const loginUser = async (data: LoginPayload): Promise<LoginResponse> => {
+  const response = await axios.post(`${API_BASE_URL}/login/`, data, {
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+  });
   return response.data;
+};
+
+export const logoutUser = async (): Promise<void> => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No authentication token found");
+
+  await axios.post(`${API_BASE_URL}/logout/`, null, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Token ${token}`,
+    },
+  });
 };

@@ -2,56 +2,72 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, useTheme, useMediaQuery } from "@mui/material";
 import {
-  PieChart as PieChartIcon,
-  // ChatBubbleOutline as ChatBotIcon,
+  PieChart as OverviewIcon,
+  Forum as ChatBotIcon,
   MedicalServices as MedicalRecordIcon,
+  Schedule as AppointmentsIcon,
+  People as PatientsIcon,
   HelpOutline as HelpIcon,
   ExitToApp as LogoutIcon,
 } from "@mui/icons-material";
-import ForumIcon from '@mui/icons-material/Forum';
+
+export type UserRole = "user" | "doctor";
 
 interface SidebarProps {
+  role: UserRole;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isCollapsed: boolean;
-  setIsCollapsed: (collapsed: boolean) => void;
+  setIsCollapsed: (val: boolean) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
+  role,
   activeTab,
   setActiveTab,
   isCollapsed,
   setIsCollapsed,
 }) => {
-  const navigate = useNavigate();
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [showLabels, setShowLabels] = useState(!isCollapsed);
 
-  const menuItems = [
-    { icon: PieChartIcon, label: "Overview", route: "/dashboard" },
-    { icon: ForumIcon, label: "Chat Bot", route: "/chat-bot" },
-    {
-      icon: MedicalRecordIcon,
-      label: "Medical record",
-      route: "/medical-record",
-    },
-  ];
+  // build menu based on role
+  const menuItems = role === "user"
+    ? [
+        { icon: OverviewIcon, label: "Overview", route: "/dashboard/profile-user" },
+        { icon: ChatBotIcon, label: "Chat Bot", route: "/dashboard/chat-bot" },
+        { icon: MedicalRecordIcon, label: "Medical Record", route: "/dashboard/medical-record" },
+      ]
+    : [
+        { icon: OverviewIcon, label: "Overview", route: "/dashboard/profile-doctor" },
+        { icon: PatientsIcon, label: "My Patients", route: "/dashboard/visits" },
+        { icon: AppointmentsIcon, label: "Appointments", route: "/dashboard/appointments" },
+      ];
 
+  // animate labels on collapse/expand
   useEffect(() => {
     if (!isCollapsed) {
-      setTimeout(() => setShowLabels(true), 200);
+      const t = setTimeout(() => setShowLabels(true), 200);
+      return () => clearTimeout(t);
     } else {
       setShowLabels(false);
     }
   }, [isCollapsed]);
 
-  // Determine width: on mobile, full or zero; on desktop, collapsedWidth or fullWidth
-  const width = isMobile ? (isCollapsed ? 0 : 260) : isCollapsed ? 73 : 260;
+  // determine width
+  const width = isMobile
+    ? isCollapsed
+      ? 0
+      : 260
+    : isCollapsed
+    ? 73
+    : 260;
 
   return (
     <>
-      {/* Backdrop for mobile when open */}
+      {/* dark backdrop on mobile when open */}
       {isMobile && !isCollapsed && (
         <Box
           onClick={() => setIsCollapsed(true)}
@@ -73,39 +89,35 @@ const Sidebar: React.FC<SidebarProps> = ({
           position: "fixed",
           top: 0,
           left: 0,
-          height: "100vh",
           width,
+          height: "100vh",
           bgcolor: theme.palette.background.paper,
           color: theme.palette.text.primary,
           borderRight: 1,
           borderColor: theme.palette.divider,
+          boxShadow: theme.shadows[4],
+          overflowX: "hidden",
+          transition: "width 0.3s ease",
           display: "flex",
           flexDirection: "column",
-          transition: "width 0.3s ease",
-          boxShadow: theme.shadows[4],
           zIndex: 30,
-          overflowX: "hidden",
         }}
       >
-        {/* Header */}
+        {/* logo / brand */}
         <Box
-          component="span"
           sx={{
-            opacity: 1,
-            transition: "opacity 0.3s",
-            fontSize: { xs: "25px", lg: "40px" },
             fontFamily: "adamina",
+            fontSize: { xs: "25px", lg: "40px" },
+            textAlign: "center",
             whiteSpace: "nowrap",
             overflow: "hidden",
-            textAlign: "center",
+            opacity: 1,
+            p: 2,
           }}
         >
           {isCollapsed ? "T" : "Tabeeb"}
         </Box>
 
-        <hr className="mb-8 h-px border-t-0 bg-transparent bg-gradient-to-r from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-400" />
-
-        {/* Menu */}
         <Box sx={{ flexGrow: 1, px: 2, overflowY: "auto" }}>
           {menuItems.map(({ icon: Icon, label, route }) => {
             const selected = activeTab === label;
@@ -125,9 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   mb: 1,
                   borderRadius: 2,
                   cursor: "pointer",
-                  bgcolor: selected
-                    ? theme.palette.primary.dark
-                    : "transparent",
+                  bgcolor: selected ? theme.palette.primary.dark : "transparent",
                   color: selected
                     ? theme.palette.background.default
                     : theme.palette.text.primary,
@@ -139,7 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 }}
               >
                 <Icon fontSize="medium" />
-                {width > 73 && (
+                {!isCollapsed && (
                   <Box
                     component="span"
                     sx={{
@@ -159,7 +169,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           })}
         </Box>
 
-        {/* Footer */}
+        {/* footer */}
         <Box sx={{ px: 2, pb: 2 }}>
           {[
             { icon: HelpIcon, label: "Help" },
@@ -167,7 +177,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           ].map(({ icon: Icon, label }) => (
             <Box
               key={label}
-              onClick={() => label === "Log out"}
+              onClick={() => console.log(label)}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -184,7 +194,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               }}
             >
               <Icon fontSize="medium" />
-              {width > 73 && (
+              {!isCollapsed && (
                 <Box
                   component="span"
                   sx={{

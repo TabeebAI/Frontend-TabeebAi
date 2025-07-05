@@ -7,7 +7,6 @@ import {
   Badge,
   Menu,
   MenuItem,
-  Divider,
   Avatar,
   Box,
   useTheme,
@@ -18,10 +17,11 @@ import {
   Close as CloseIcon,
   Notifications as NotificationsIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
-  AccountCircle as ProfileIcon,
+  Settings as SettingsIcon,
   Logout as LogoutIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { useLogout } from "@hooks/api/useAuth/useLogout";
 
 interface NavbarProps {
   activeTab: string;
@@ -31,6 +31,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ isCollapsed, setIsCollapsed }) => {
   const theme = useTheme();
+  const logout = useLogout();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -40,20 +41,6 @@ const Navbar: React.FC<NavbarProps> = ({ isCollapsed, setIsCollapsed }) => {
   };
 
   const handleMenuClose = () => setAnchorEl(null);
-
-  const handleProfileClick = () => {
-    navigate("/profile");
-    handleMenuClose();
-  };
-  
-  const handleLogout = () => {
-    // 1. remove token
-    localStorage.removeItem("token");
-    // 2. close menu
-    handleMenuClose();
-    // 3. navigate home
-    navigate("/", { replace: true });
-  };
 
   return (
     <AppBar
@@ -93,7 +80,7 @@ const Navbar: React.FC<NavbarProps> = ({ isCollapsed, setIsCollapsed }) => {
         {/* Right Section - Actions */}
         <Box display="flex" alignItems="center">
           {/* Notifications */}
-          <IconButton sx={{ color: "text.secondary",  }}>
+          <IconButton sx={{ color: "text.secondary" }}>
             <Badge badgeContent={4} color="primary">
               <NotificationsIcon />
             </Badge>
@@ -139,29 +126,27 @@ const Navbar: React.FC<NavbarProps> = ({ isCollapsed, setIsCollapsed }) => {
                 width: 220,
                 mt: 1,
                 boxShadow: theme.shadows[4],
-                borderRadius: 2,
+                borderRadius: 0.5,
                 bgcolor: theme.palette.background.paper,
               },
             }}
           >
             <MenuItem
-              onClick={handleProfileClick}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                color: theme.palette.text.primary,
-                "&:hover": {
-                  bgcolor: theme.palette.primary.dark,
-                  color: theme.palette.background.default,
-                },
+              onClick={() => {
+                handleMenuClose();
+                navigate("/settings");
               }}
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
             >
-              <ProfileIcon fontSize="small" />
-              Profile
+              <SettingsIcon fontSize="small" /> Settings
             </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleLogout} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <MenuItem
+              onClick={() => {
+                handleMenuClose();
+                logout();
+              }}
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
               <LogoutIcon fontSize="small" /> Log Out
             </MenuItem>
           </Menu>

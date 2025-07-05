@@ -21,13 +21,10 @@ export const useRegister = () => {
       setData(result);
       return result;
     } catch (err) {
+      console.log(err)
       setError(
-        err.response?.data?.non_field_errors?.[0] || "Registration failed."
+        err.response?.data?.password1?.[0] || "Registration failed."
       );
-      showToaster({
-        message: err.response?.data?.message || "Failed to add banner",
-        type: "error",
-      });
     } finally {
       setLoading(false);
     }

@@ -23,4 +23,15 @@ export default defineConfig({
       "@utils": path.resolve(__dirname, "./src/utils"),
     },
   },
+  server: {
+    proxy: {
+      // proxy any /api/* to your Django server
+      "/api": {
+        target: "https://1e1d-164-92-195-186.ngrok-free.app",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, "/TabebAI"),
+      },
+    },
+  },
 })

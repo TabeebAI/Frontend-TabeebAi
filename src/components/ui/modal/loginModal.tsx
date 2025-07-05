@@ -85,27 +85,31 @@ const LoginModal: React.FC<LoginModalProps> = ({
           </Box>
         ) : (
           <>
-            <LoginForm userType={selectedRole} />
-            <Box mt={3} textAlign="center">
-              <Typography variant="body2" sx={{ color: "#757575" }}>
-                Don’t have an account?{" "}
-                <Button
-                  onClick={() => onSwitchToRegister(selectedRole)}
-                  size="small"
-                  variant="text"
-                  sx={{
-                    color: "#1d6d62",
-                    "&:hover": {
-                      backgroundColor: "transparent",
-                      color: "#145246",
-                      textDecoration: "underline",
-                    },
-                  }}
-                >
-                  Register
-                </Button>
-              </Typography>
-            </Box>
+            <LoginForm userType={selectedRole} onForgot={onClose} />
+
+            {/* Only show Register button when user, not doctor */}
+            {selectedRole === "user" && (
+              <Box mt={3} textAlign="center">
+                <Typography variant="body2" sx={{ color: "#757575" }}>
+                  Don’t have an account?{" "}
+                  <Button
+                    onClick={() => onSwitchToRegister(selectedRole)}
+                    size="small"
+                    variant="text"
+                    sx={{
+                      color: "#1d6d62",
+                      "&:hover": {
+                        backgroundColor: "transparent",
+                        color: "#145246",
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    Register
+                  </Button>
+                </Typography>
+              </Box>
+            )}
           </>
         )}
       </DialogContent>

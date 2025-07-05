@@ -1,14 +1,18 @@
 export interface Patient {
   id: string;
-  name: string;
-  dob: string;
+  username: string;
+  first_name: string,
+  last_name: string,
+  mothers_name: string,
+  fathers_name: string,
+  blood_type: string,
+  birth_date: string;
   gender: string;
   email: string;
   phone: string;
   avatarUrl: string;
-  bloodType: string;
-  heightCm: number;
-  weightKg: number;
+  weight: number;
+  height: number;
 }
 
 export interface Operation {
