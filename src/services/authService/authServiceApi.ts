@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://2478-137-184-161-129.ngrok-free.app/TabebAI";
+const API_BASE_URL = "http://127.0.0.1:8000/TabebAI";
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 

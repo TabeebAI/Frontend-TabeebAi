@@ -1,4 +1,3 @@
-// src/hooks/api/useProfile.ts
 import { useState, useEffect } from "react";
 import {
   getProfile,
@@ -11,7 +10,6 @@ export function useProfile() {
   const [loading, setLoading] = useState(true);
   const [error,   setError] = useState<string | null>(null);
 
-  // Initial load
   useEffect(() => {
     (async () => {
       try {
@@ -25,16 +23,13 @@ export function useProfile() {
     })();
   }, []);
 
-  // Save & re-fetch
   async function save(updates: Partial<PatientProfile>) {
     if (!profile) return false;
     setLoading(true);
     setError(null);
 
     try {
-      // 1) patch
       await updateProfile(profile.id, updates);
-      // 2) re-fetch to pick up any server-side defaults, calculated fields, etc.
       const fresh = await getProfile();
       setProfile(fresh);
       return true;

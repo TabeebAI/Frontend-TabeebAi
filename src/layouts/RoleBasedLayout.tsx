@@ -16,7 +16,6 @@ const RoleBasedLayout: React.FC = () => {
     return <DashboardUserLayout />;
   }
 
-  // If somehow unauthenticated or no role, redirect to login
   return <Navigate to="/" replace state={{ from: location }} />;
 };
 

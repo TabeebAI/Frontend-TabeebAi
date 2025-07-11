@@ -17,14 +17,10 @@ const ForgotPasswordPage = lazy(
 const UserOverview = lazy(() => import("@pages/dashboardUser/overview/index"));
 const ChatBot = lazy(() => import("@pages/dashboardUser/chatbot/index"));
 const MedicalRecord = lazy(() => import("@pages/dashboardUser/medicalRecord/index"));
-const ChangePassword = lazy(
-  () => import("@pages/dashboardUser/changePassword/index")
-);
+const ChangePassword = lazy(() => import("@pages/dashboardUser/changePassword/index"));
 
 // doctor pages
-const DoctorOverview = lazy(
-  () => import("@pages/dashboardDoctor/overviewPage/index")
-);
+const DoctorOverview = lazy(() => import("@pages/dashboardDoctor/overviewPage/index"));
 const VisitsPage = lazy(() => import("@pages/dashboardDoctor/visitsPage/index"));
 
 const NotFoundPage = lazy(() => import("@pages/pageNotFound"));

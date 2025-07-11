@@ -25,12 +25,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // proxy any /api/* to your Django server
-      "/api": {
-        target: "https://1e1d-164-92-195-186.ngrok-free.app",
+      // any request starting with /TabebAI → forward to Django
+      '/TabebAI': {
+        target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, "/TabebAI"),
       },
     },
   },

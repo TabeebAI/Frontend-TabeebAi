@@ -7,7 +7,7 @@ declare module '@mui/material/styles' {
   interface PaletteOptions {
     tertiary?: PaletteOptions['primary'];
   }
-  // Likewise for custom typography variants:
+  
   interface TypographyVariants {
     code?: React.CSSProperties;
   }
@@ -16,7 +16,6 @@ declare module '@mui/material/styles' {
   }
 }
 
-// Also let <Typography variant="code" /> work:
 declare module '@mui/material/Typography' {
   interface TypographyPropsVariantOverrides {
     code: true;

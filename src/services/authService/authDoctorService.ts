@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "https://2478-137-184-161-129.ngrok-free.app/TabebAI/DR";
+const API_BASE = "http://127.0.0.1:8000/TabebAI/DR";
 
 export interface DoctorLoginPayload {
   full_name: string;

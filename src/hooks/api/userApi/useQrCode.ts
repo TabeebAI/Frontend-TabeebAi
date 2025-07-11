@@ -1,4 +1,3 @@
-// src/hooks/api/userApi/useQrCode.ts
 import { useState, useEffect } from 'react';
 import { getQrCode } from '@/services/user/qrCodeService';
 
@@ -16,6 +15,7 @@ export function useQrCode(enabled: boolean) {
       setError(null);
       try {
         const blob = await getQrCode();
+        console.log(blob)
         objectUrl = URL.createObjectURL(blob);
         setQrUrl(objectUrl);
       } catch (e) {

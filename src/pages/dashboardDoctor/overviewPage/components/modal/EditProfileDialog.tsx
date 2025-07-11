@@ -36,7 +36,6 @@ export const EditDoctorDialog: React.FC<EditDoctorDialogProps> = ({
   });
   const [saving, setSaving] = useState(false);
 
-  // seed from initial
   useEffect(() => {
     if (initial) {
       setForm({

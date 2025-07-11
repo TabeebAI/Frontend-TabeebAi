@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://2478-137-184-161-129.ngrok-free.app/TabebAI";
+const API_BASE_URL = "http://127.0.0.1:8000/TabebAI";
 
 export interface PatientProfile {
   id: number;
@@ -19,19 +19,20 @@ export interface PatientProfile {
   photo: string | null;
 }
 
-// GET returns an array, so we type as PatientProfile[]
 export const getProfile = async (): Promise<PatientProfile> => {
   const token = localStorage.getItem("token");
   const resp = await axios.get<PatientProfile[]>(
     `${API_BASE_URL}/overview/profile/`,
     {
-      headers: { Authorization: `Token ${token}` },
+      headers: {
+        Authorization: `Token ${token}`,
+        "ngrok-skip-browser-warning": 69420,
+      },
     }
   );
   return resp.data[0];
 };
 
-// POST also returns an array
 export const updateProfile = async (
   id: number,
   data: Partial<PatientProfile>
@@ -44,6 +45,7 @@ export const updateProfile = async (
       headers: {
         "Content-Type": "application/json",
         Authorization: `Token ${token}`,
+        "ngrok-skip-browser-warning": 69420,
       },
     }
   );

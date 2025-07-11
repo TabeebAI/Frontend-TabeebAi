@@ -7,7 +7,7 @@ export interface DoctorVisit {
   created: string;
 }
 
-const API_BASE = "https://2478-137-184-161-129.ngrok-free.app/TabebAI";
+const API_BASE = "http://127.0.0.1:8000/TabebAI";
 
 export async function getDoctorVisits(): Promise<DoctorVisit[]> {
   const token = localStorage.getItem("token");

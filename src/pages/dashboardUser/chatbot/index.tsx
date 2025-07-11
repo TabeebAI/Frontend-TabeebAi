@@ -1,4 +1,3 @@
-// src/pages/ChatPage.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
@@ -41,10 +40,8 @@ const MessagesContainer = styled(Box)(({ theme }) => ({
   overflowY: 'auto',
   padding: theme.spacing(3),
   backgroundColor: theme.palette.grey[50],
-  // ensure last messages aren’t hidden behind the input bar
   paddingBottom: theme.spacing(10),
 
-  // custom scrollbar
   '&::-webkit-scrollbar': {
     width: 8,
   },
