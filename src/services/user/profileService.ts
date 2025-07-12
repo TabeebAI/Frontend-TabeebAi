@@ -16,7 +16,7 @@ export interface PatientProfile {
   height: number;
   phone: string;
   gender: string;
-  photo: string | null;
+   photo: string | File | null;
 }
 
 export const getProfile = async (): Promise<PatientProfile> => {
@@ -35,19 +35,28 @@ export const getProfile = async (): Promise<PatientProfile> => {
 
 export const updateProfile = async (
   id: number,
-  data: Partial<PatientProfile>
+  data: Omit<Partial<PatientProfile>, "photo"> & { photo?: File | null }
 ): Promise<PatientProfile> => {
   const token = localStorage.getItem("token");
+  const formData = new FormData();
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      formData.append(key, value as Blob | string); // ✅ Cast is safe
+    }
+  });
+
   const resp = await axios.put<PatientProfile[]>(
     `${API_BASE_URL}/overview/profile/${id}/`,
-    data,
+    formData,
     {
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
         Authorization: `Token ${token}`,
-        "ngrok-skip-browser-warning": 69420,
+        "ngrok-skip-browser-warning": "69420",
       },
     }
   );
   return resp.data[0];
 };
+

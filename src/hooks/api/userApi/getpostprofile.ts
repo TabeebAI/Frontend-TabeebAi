@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react";
-import {
-  getProfile,
-  updateProfile,
-  PatientProfile,
-} from "@/services/user/profileService";
+import { getProfile, updateProfile, PatientProfile } from "@/services/user/profileService";
 
 export function useProfile() {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -23,15 +19,13 @@ export function useProfile() {
     })();
   }, []);
 
-  async function save(updates: Partial<PatientProfile>) {
+  const save = async (updates: Partial<PatientProfile> & { photo?: File | null }) => {
     if (!profile) return false;
     setLoading(true);
     setError(null);
-
     try {
-      await updateProfile(profile.id, updates);
-      const fresh = await getProfile();
-      setProfile(fresh);
+      const updated = await updateProfile(profile.id, updates);
+      setProfile(updated);
       return true;
     } catch (e) {
       setError(e.response?.data?.detail || "Failed to update profile");
@@ -39,7 +33,7 @@ export function useProfile() {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return { profile, loading, error, save };
 }

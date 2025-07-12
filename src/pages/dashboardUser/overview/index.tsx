@@ -98,6 +98,7 @@ const PatientOverview: React.FC = () => {
       height: parseFloat(formState.height),
       phone: formState.phone,
       gender: formState.gender,
+      photo: formState.photo,
     });
     if (ok) setEditOpen(false);
   };
@@ -113,9 +114,16 @@ const PatientOverview: React.FC = () => {
       >
         <Box display="flex" alignItems="center">
           <Avatar
-            src={patient.photo || undefined}
+            src={
+              typeof patient.photo === "string"
+                ? patient.photo
+                : patient.photo instanceof File
+                  ? URL.createObjectURL(patient.photo)
+                  : undefined
+            }
             sx={{ width: 80, height: 80, mr: 2 }}
           />
+
           <Box>
             <Typography variant="h4" fontWeight={600}>
               {patient.first_name} {patient.last_name}
@@ -133,7 +141,7 @@ const PatientOverview: React.FC = () => {
         <Box display="flex" alignItems="center">
           {/* Show QR Button */}
           <Button
-          variant="contained"
+            variant="contained"
             startIcon={<QrCodeIcon />}
             onClick={() => setQrOpen(true)}
             sx={{
